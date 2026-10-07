@@ -1,0 +1,15 @@
+---
+applications:
+  - name: jeff-gcts-cicd-demo
+    path: .
+    memory: 64M
+    disk_quota: 128M
+    instances: 1
+    buildpacks:
+      - nodejs_buildpack
+    command: node server.js
+    health-check-type: http
+    health-check-http-endpoint: /health
+    env:
+      NODE_ENV: production
+      DEMO_VERSION: ((DEMO_VERSION))
