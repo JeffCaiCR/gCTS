@@ -1,0 +1,68 @@
+name: SAP BTP Cloud Foundry CI/CD Demo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cicd-demo/**'
+      - '.github/workflows/btp-cicd-demo.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: btp-cicd-demo-production
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate demo application
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cicd-demo
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run application tests
+        run: npm test
+
+  deploy:
+    name: Deploy to SAP BTP Cloud Foundry
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: btp-trial
+    defaults:
+      run:
+        working-directory: cicd-demo
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Install Cloud Foundry CLI
+        run: |
+          curl -fsSL 'https://packages.cloudfoundry.org/stable?release=linux64-binary&source=github' -o cf-cli.tgz
+          tar -xzf cf-cli.tgz
+          sudo install cf8 /usr/local/bin/cf
+          cf version
+      - name: Authenticate and target SAP BTP
+        env:
+          CF_API: ${{ secrets.BTP_CF_API }}
+          CF_ORG: ${{ secrets.BTP_CF_ORG }}
+          CF_SPACE: ${{ secrets.BTP_CF_SPACE }}
+          CF_USERNAME: ${{ secrets.BTP_CF_USERNAME }}
+          CF_PASSWORD: ${{ secrets.BTP_CF_PASSWORD }}
+        run: |
+          cf api "$CF_API"
+          cf auth "$CF_USERNAME" "$CF_PASSWORD"
+          cf target -o "$CF_ORG" -s "$CF_SPACE"
+      - name: Push application
+        env:
+          DEMO_VERSION: ${{ github.sha }}
+        run: cf push --var DEMO_VERSION="$DEMO_VERSION"
+      - name: Print deployed route
+        run: cf app jeff-gcts-cicd-demo
