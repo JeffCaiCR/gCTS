@@ -1,0 +1,13 @@
+{
+  "name": "btp-github-cicd-demo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Small Cloud Foundry application for the SAP BTP and GitHub Actions CI/CD demo.",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/server.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
