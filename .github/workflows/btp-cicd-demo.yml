@@ -34,6 +34,7 @@ jobs:
 
   deploy:
     name: Deploy to SAP BTP Cloud Foundry
+    if: ${{ vars.BTP_CF_CONFIGURED == 'true' }}
     needs: validate
     runs-on: ubuntu-latest
     environment: btp-trial
