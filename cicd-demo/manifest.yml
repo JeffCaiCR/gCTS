@@ -2,8 +2,8 @@
 applications:
   - name: jeff-gcts-cicd-demo
     path: .
-    memory: 64M
-    disk_quota: 128M
+    memory: 128M
+    disk_quota: 256M
     instances: 1
     buildpacks:
       - nodejs_buildpack
