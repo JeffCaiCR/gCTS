@@ -64,5 +64,8 @@ jobs:
         env:
           DEMO_VERSION: ${{ github.sha }}
         run: cf push --var DEMO_VERSION="$DEMO_VERSION"
+      - name: Print recent application logs if the start fails
+        if: failure()
+        run: cf logs jeff-gcts-cicd-demo --recent
       - name: Print deployed route
         run: cf app jeff-gcts-cicd-demo
